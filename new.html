@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Headlines and GIFs</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Top News Headlines</h1>
+  <ul id="newsList"></ul>
+
+  <h1>GIFs related to News</h1>
+  <div id="gifContainer"></div>
+
+  <script>
+    const newsApiKey = 'YOUR_NEWS_API_KEY';
+    const giphyApiKey = 'YOUR_GIPHY_API_KEY';
+
+    // Fetch top news headlines
+    fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${newsApiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        const newsList = document.getElementById('newsList');
+        data.articles.forEach(article => {
+          const listItem = document.createElement('li');
+          listItem.textContent = article.title;
+          newsList.appendChild(listItem);
+          
+          // Fetch GIF related to the news headline
+          fetch(`https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(article.title)}&api_key=${giphyApiKey}&limit=1`)
+            .then(response => response.json())
+            .then(gifData => {
+              if (gifData.data.length > 0) {
+                const gifUrl = gifData.data[0].images.downsized_medium.url;
+                const gifContainer = document.getElementById('gifContainer');
+                const gifElement = document.createElement('img');
+                gifElement.src = gifUrl;
+                gifContainer.appendChild(gifElement);
+              }
+            })
+            .catch(error => console.error('Error fetching GIF:', error));
+        });
+      })
+      .catch(error => console.error('Error fetching news:', error));
+  </script>
+</body>
+</html>
